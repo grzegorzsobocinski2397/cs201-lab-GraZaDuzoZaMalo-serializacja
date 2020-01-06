@@ -77,8 +77,10 @@ namespace Serializacja
         public void StartApplication()
         {
             view.DisplayGameDescription();
-            while (view.DisplayContinueGameDialog("Czy chcesz kontynuować aplikację (t/n)? "))
+            while (view.DisplayStartGameMessage())
+            {
                 StartGame();
+            }
         }
 
         /// <summary>

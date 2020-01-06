@@ -1,4 +1,5 @@
 ﻿using Serializacja.Models;
+using Serializacja.Resources;
 using System;
 using static System.Console;
 
@@ -50,7 +51,7 @@ namespace Serializacja
         /// <summary>
         /// Shows the welcome screen for user.
         /// </summary>
-        public void DisplayWelcomeScreen() => WriteLine("Wylosowałem liczbę z zakresu ");
+        public void DisplayWelcomeScreen() => WriteLine(ConsoleMessages.ComputerStart);
 
         /// <summary>
         /// Load the player's input from Console.
@@ -62,7 +63,7 @@ namespace Serializacja
             bool isCorrectAnswer = false;
             while (!isCorrectAnswer)
             {
-                Write("Podaj swoją propozycję (lub " + Controller.CLOSE_APPLICATION_CHAR + " aby przerwać): ");
+                Write($"Try making a guess (or press {Controller.CLOSE_APPLICATION_CHAR} to stop the game): ");
                 try
                 {
                     string value = ReadLine().TrimStart().ToUpper();
@@ -75,19 +76,20 @@ namespace Serializacja
                 }
                 catch (FormatException)
                 {
-                    WriteLine("Podana przez Ciebie wartość nie przypomina liczby! Spróbuj raz jeszcze.");
+                    WriteLine(ConsoleMessages.NotNumber);
                     continue;
                 }
                 catch (OverflowException)
                 {
-                    WriteLine("Przesadziłeś. Podana przez Ciebie wartość jest zła! Spróbuj raz jeszcze.");
+                    WriteLine(ConsoleMessages.NumberTooBig);
                     continue;
                 }
                 catch (Exception)
                 {
-                    WriteLine("Nieznany błąd! Spróbuj raz jeszcze.");
+                    WriteLine(ConsoleMessages.UnknownException);
                     continue;
                 }
+                ClearConsole();
             }
             return score;
         }
@@ -97,21 +99,19 @@ namespace Serializacja
         /// </summary>
         public void DisplayGameDescription()
         {
-            WriteLine("Gra w \"Za dużo za mało\"." + Environment.NewLine
-                + "Twoimm zadaniem jest odgadnąć liczbę, którą wylosował komputer." + Environment.NewLine + "Na twoje propozycje komputer odpowiada: za dużo, za mało albo trafiłeś");
+            WriteLine(ConsoleMessages.GameRules);
         }
 
         /// <summary>
-        /// Ask the user if he/she wants to continue the game.
+        /// Ask the user if he/she wants to start the game.
         /// </summary>
-        /// <param name="prompt"></param>
         /// <returns>User's input.</returns>
-        public bool DisplayContinueGameDialog(string prompt)
+        public bool DisplayStartGameMessage()
         {
-            Write(prompt);
+            Write(ConsoleMessages.StartGame);
             char answer = ReadKey().KeyChar;
             WriteLine();
-            return (answer == 't' || answer == 'T');
+            return (answer == 'y' || answer == 'Y');
         }
 
         /// <summary>
@@ -121,16 +121,16 @@ namespace Serializacja
         {
             if (controller.Rounds.Count == 0)
             {
-                WriteLine("--- pusto ---");
+                WriteLine("--- empty ---");
                 return;
             }
 
-            WriteLine("Nr    Propozycja     Odpowiedź     Czas    Status");
+            WriteLine("Nr    Guess     Answer     Time    Status");
             WriteLine("=================================================");
             int i = 1;
-            foreach (var ruch in controller.Rounds)
+            foreach (Round ruch in controller.Rounds)
             {
-                WriteLine($"{i}     {ruch.Number}      {ruch.Answer}  {ruch.Time.Second}   {ruch.Status}");
+                WriteLine($"{i}     {ruch.Number}      {ruch.Answer}       {ruch.Time.Second}        {ruch.Status}");
                 i++;
             }
         }
@@ -141,7 +141,7 @@ namespace Serializacja
         public void DisplayTooMuchMessage()
         {
             ForegroundColor = ConsoleColor.Red;
-            WriteLine("Za dużo!");
+            WriteLine(ConsoleMessages.TooMuch);
             ResetColor();
         }
 
@@ -151,7 +151,7 @@ namespace Serializacja
         public void DisplayTooLittleMessage()
         {
             ForegroundColor = ConsoleColor.Red;
-            WriteLine("Za mało!");
+            WriteLine(ConsoleMessages.TooLittle);
             ResetColor();
         }
 
@@ -161,7 +161,7 @@ namespace Serializacja
         public void DisplayWinMessage()
         {
             ForegroundColor = ConsoleColor.Green;
-            WriteLine("Trafiono!");
+            WriteLine(ConsoleMessages.CorrectGuess);
             ResetColor();
         }
 
