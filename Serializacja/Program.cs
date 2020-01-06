@@ -1,19 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static System.Console;
-using GraZaDuzoZaMalo.Model;
-
-namespace AppGraZaDuzoZaMaloCLI
+﻿namespace Serializacja
 {
-    class Program
+    internal class Program
     {
-        static void Main(string[] args)
+        /// <summary>
+        /// Creates a new controller and starts an application.
+        /// </summary>
+        private static void Main()
         {
-            (new KontrolerCLI()).Uruchom();
+            new Controller().StartApplication();
         }
-
     }
 }
