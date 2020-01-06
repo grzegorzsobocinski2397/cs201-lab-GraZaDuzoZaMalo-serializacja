@@ -5,6 +5,7 @@ namespace Serializacja.Models
     /// <summary>
     /// One round that user have played.
     /// </summary>
+    [Serializable]
     public class Round
     {
         #region Public Properties

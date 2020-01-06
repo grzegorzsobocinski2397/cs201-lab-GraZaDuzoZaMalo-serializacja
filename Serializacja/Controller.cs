@@ -1,7 +1,11 @@
 ﻿using Serializacja.Models;
+using Serializacja.Resources;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace Serializacja
 {
@@ -77,20 +81,39 @@ namespace Serializacja
         public void StartApplication()
         {
             view.DisplayGameDescription();
-            while (view.DisplayStartGameMessage())
+
+            if (File.Exists($"{Environment.CurrentDirectory}\\SaveFile.bin"))
             {
-                StartGame();
+                view.DisplayInformationAboutPreviousGame();
+
+                SaveFile save = game.LoadGame();
+
+                if (save != null)
+                {
+                    view.DisplayLoadGameInformation(save.Rounds.Count, save.StartDate, save.TotalGameDuration);
+
+                    while (view.AskUserForInput(ConsoleMessages.LoadGame))
+                    {
+                        game = new Game(save);
+                        StartGame(game);
+                        return;
+                    }
+                }
+            }
+
+            while (view.AskUserForInput(ConsoleMessages.StartGame))
+            {
+                game = new Game(MinimumNumber, MaximumNumber);
+                StartGame(game);
             }
         }
 
         /// <summary>
         /// Create new instance of the game resulting with new secret number.
         /// </summary>
-        public void StartGame()
+        public void StartGame(Game game)
         {
             view.ClearConsole();
-
-            game = new Game(MinimumNumber, MaximumNumber); // may throw an exception.
 
             do
             {
@@ -111,8 +134,6 @@ namespace Serializacja
                     break;
                 }
 
-                //Console.WriteLine( gra.Ocena(propozycja) );
-                //oceń propozycję, break
                 switch (game.Score(propozycja))
                 {
                     case Answer.TooBig:
@@ -162,6 +183,14 @@ namespace Serializacja
             view.ClearConsole();
             view = null;
             Environment.Exit(0);
+        }
+
+        /// <summary>
+        /// Saves current game information.
+        /// </summary>
+        public void SaveGame()
+        {
+            game.SaveGame();
         }
 
         /// <summary>

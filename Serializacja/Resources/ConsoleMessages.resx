@@ -128,11 +128,20 @@
 You have to guess a number that computer came up with.
 The computer answers your guesses with "too much", "too little" and "correct".</value>
   </data>
+  <data name="LoadGame" xml:space="preserve">
+    <value>Do you want to load it (y/n)?</value>
+  </data>
   <data name="NotNumber" xml:space="preserve">
     <value>Your answer wasn't a number. Please try again.</value>
   </data>
   <data name="NumberTooBig" xml:space="preserve">
     <value>Your answer was too large! Please try again.</value>
+  </data>
+  <data name="SaveFileInformation" xml:space="preserve">
+    <value>We've noticed that you've previously saved game. </value>
+  </data>
+  <data name="SaveGame" xml:space="preserve">
+    <value>Do you want to save current game status (y/n)? Game will close automatically.</value>
   </data>
   <data name="StartGame" xml:space="preserve">
     <value>Do you want to start the game? (y/n)</value>

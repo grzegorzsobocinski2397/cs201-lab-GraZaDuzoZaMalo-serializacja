@@ -1,6 +1,9 @@
 ﻿using Serializacja.Models;
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace Serializacja
 {
@@ -70,6 +73,25 @@ namespace Serializacja
         #region Constructors
 
         /// <summary>
+        /// Creates game from previously saved game.
+        /// </summary>
+        /// <param name="game">Game instance. Take all public properties from here.</param>
+        /// <param name="rounds">List of rounds played by the user.</param>
+        /// <param name="secret">Secret number.</param>
+        public Game(SaveFile save)
+        {
+            MaximumNumber = save.MaximumValue;
+            MinimumNumber = save.MinimumValue;
+
+            secretNumber = save.Secret;
+            StartDate = save.StartDate;
+            Status = GameStatus.OnGoing;
+            EndDate = null;
+
+            rounds = save.Rounds;
+        }
+
+        /// <summary>
         /// Parameterized constructor that sets the <see cref="MinimumNumber"/> and <see cref="MaximumNumber"/>.
         /// </summary>
         /// <param name="min">The maximum value user can try to guess and the computer can generate.</param>
@@ -116,12 +138,11 @@ namespace Serializacja
                 EndDate = DateTime.Now;
                 rounds.Add(new Round(guess, answer, GameStatus.Ended));
             }
-            else if (guess < secretNumber)
-                answer = Answer.TooSmall;
             else
-                answer = Answer.TooBig;
+            {
+                answer = guess < secretNumber ? Answer.TooSmall : Answer.TooBig;
+            }
 
-            //dopisz do listy
             if (Status == GameStatus.OnGoing)
             {
                 rounds.Add(new Round(guess, answer, GameStatus.OnGoing));
@@ -144,6 +165,51 @@ namespace Serializacja
             }
 
             return secretNumber;
+        }
+
+        /// <summary>
+        /// Saves current game information.
+        /// </summary>
+        public void SaveGame()
+        {
+            SaveFile save = new SaveFile(this, rounds, secretNumber);
+            IFormatter formatter = new BinaryFormatter();
+            Stream stream = new FileStream("SaveFile.bin", FileMode.Create, FileAccess.Write, FileShare.None);
+
+            using (stream)
+            {
+                try
+                {
+                    formatter.Serialize(stream, save);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                    Console.ReadKey();
+                }
+            }
+        }
+        /// <summary>
+        /// Loads the file.
+        /// </summary>
+        public SaveFile LoadGame()
+        {
+            IFormatter formatter = new BinaryFormatter();
+            Stream stream = new FileStream("SaveFile.bin", FileMode.Open, FileAccess.Read, FileShare.Read);
+            using (stream)
+            {
+                try
+                {
+                    return (SaveFile)formatter.Deserialize(stream);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                    Console.ReadKey();
+                }
+            }
+
+            return null;
         }
 
         #endregion Public Methods

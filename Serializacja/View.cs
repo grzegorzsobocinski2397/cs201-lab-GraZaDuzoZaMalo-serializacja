@@ -60,19 +60,28 @@ namespace Serializacja
         public int LoadInput()
         {
             int score = 0;
-            bool isCorrectAnswer = false;
-            while (!isCorrectAnswer)
+            bool isInputCorrect = false;
+            while (!isInputCorrect)
             {
-                Write($"Try making a guess (or press {Controller.CLOSE_APPLICATION_CHAR} to stop the game): ");
+                Write($"Try making a guess (or type {Controller.CLOSE_APPLICATION_CHAR} to stop the game): ");
                 try
                 {
                     string value = ReadLine().TrimStart().ToUpper();
                     if (value.Length > 0 && value[0].Equals(CLOSE_APPLICATION_CHAR))
-                        throw new GameEndException();
+                    {
+                        if (AskUserForInput(ConsoleMessages.SaveGame))
+                        {
+                            controller.SaveGame();
+                            controller.CloseApplication();
+                        }
+                        else
+                        {
+                            controller.CloseApplication();
+                        }
+                    }
 
-                    //UWAGA: ponizej może zostać zgłoszony wyjątek
                     score = int.Parse(value);
-                    isCorrectAnswer = true;
+                    isInputCorrect = true;
                 }
                 catch (FormatException)
                 {
@@ -103,15 +112,15 @@ namespace Serializacja
         }
 
         /// <summary>
-        /// Ask the user if he/she wants to start the game.
+        /// Ask the user a question and wait for input.
         /// </summary>
         /// <returns>User's input.</returns>
-        public bool DisplayStartGameMessage()
+        public bool AskUserForInput(string message)
         {
-            Write(ConsoleMessages.StartGame);
+            Write(message);
             char answer = ReadKey().KeyChar;
             WriteLine();
-            return (answer == 'y' || answer == 'Y');
+            return answer == 'y' || answer == 'Y';
         }
 
         /// <summary>
@@ -163,6 +172,25 @@ namespace Serializacja
             ForegroundColor = ConsoleColor.Green;
             WriteLine(ConsoleMessages.CorrectGuess);
             ResetColor();
+        }
+
+        /// <summary>
+        /// Displays information about previous game.
+        /// </summary>
+        /// <param name="numberOfRounds">Number of rounds that user has played.</param>
+        /// <param name="startDate">Start date of the game.</param>
+        /// <param name="duration">Total game duration.</param>
+        public void DisplayLoadGameInformation(int numberOfRounds, DateTime startDate, TimeSpan duration)
+        {
+            WriteLine($"Rounds played: {numberOfRounds}. Start date: {startDate.ToString("yyyy-MM-dd HH:mm")}. Duration: {duration.ToString()}");
+        }
+
+        /// <summary>
+        /// Informs the user about previous game.
+        /// </summary>
+        public void DisplayInformationAboutPreviousGame()
+        {
+            WriteLine($"\n\n{ConsoleMessages.SaveFileInformation}");
         }
 
         #endregion Public Methods

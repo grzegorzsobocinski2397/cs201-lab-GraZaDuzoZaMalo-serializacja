@@ -90,6 +90,15 @@ namespace Serializacja.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Do you want to load it (y/n)?.
+        /// </summary>
+        internal static string LoadGame {
+            get {
+                return ResourceManager.GetString("LoadGame", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Your answer wasn&apos;t a number. Please try again..
         /// </summary>
         internal static string NotNumber {
@@ -104,6 +113,24 @@ namespace Serializacja.Resources {
         internal static string NumberTooBig {
             get {
                 return ResourceManager.GetString("NumberTooBig", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to We&apos;ve noticed that you&apos;ve previously saved game. .
+        /// </summary>
+        internal static string SaveFileInformation {
+            get {
+                return ResourceManager.GetString("SaveFileInformation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Do you want to save current game status (y/n)? Game will close automatically..
+        /// </summary>
+        internal static string SaveGame {
+            get {
+                return ResourceManager.GetString("SaveGame", resourceCulture);
             }
         }
         
