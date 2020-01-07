@@ -24,6 +24,11 @@ namespace Serializacja
         /// </summary>
         private List<Round> rounds;
 
+        /// <summary>
+        /// Calculate Total Game Duration based on that value.
+        /// </summary>
+        private readonly bool hasBeenSaved = false;
+
         #endregion Private Fields
 
         #region Public Properties
@@ -54,19 +59,26 @@ namespace Serializacja
         public DateTime StartDate { get; }
 
         /// <summary>
+        /// Start date after loading the game file.
+        /// </summary>
+        public DateTime CheckPointStartDate { get;  private set; }
+
+        /// <summary>
         /// End date of the game.
         /// </summary>
         public DateTime? EndDate { get; private set; }
 
+
+
         /// <summary>
-        /// Returns current game duration from constructor initialization till this time.
+        /// Returns current game duration from constructor initialization or game load till this time.
         /// </summary>
-        public TimeSpan GameDuration => DateTime.Now - StartDate;
+        public TimeSpan CurrentGameDuration => hasBeenSaved ? DateTime.Now - CheckPointStartDate : DateTime.Now - StartDate;
 
         /// <summary>
         /// Returns total current game duration if the game wasn't started.
         /// </summary>
-        public TimeSpan TotalGameDuration => (Status == GameStatus.OnGoing) ? GameDuration : (TimeSpan)(EndDate - StartDate);
+        public TimeSpan TotalGameDuration { get; set; }
 
         #endregion Public Properties
 
@@ -80,9 +92,12 @@ namespace Serializacja
         /// <param name="secret">Secret number.</param>
         public Game(SaveFile save)
         {
+            hasBeenSaved = true;
             MaximumNumber = save.MaximumValue;
             MinimumNumber = save.MinimumValue;
 
+            CheckPointStartDate = DateTime.Now;
+            TotalGameDuration = save.TotalGameDuration;
             secretNumber = save.Secret;
             StartDate = save.StartDate;
             Status = GameStatus.OnGoing;
@@ -172,6 +187,7 @@ namespace Serializacja
         /// </summary>
         public void SaveGame()
         {
+            TotalGameDuration = TotalGameDuration.Add(CurrentGameDuration);
             SaveFile save = new SaveFile(this, rounds, secretNumber);
             IFormatter formatter = new BinaryFormatter();
             Stream stream = new FileStream("SaveFile.bin", FileMode.Create, FileAccess.Write, FileShare.None);
@@ -189,28 +205,7 @@ namespace Serializacja
                 }
             }
         }
-        /// <summary>
-        /// Loads the file.
-        /// </summary>
-        public SaveFile LoadGame()
-        {
-            IFormatter formatter = new BinaryFormatter();
-            Stream stream = new FileStream("SaveFile.bin", FileMode.Open, FileAccess.Read, FileShare.Read);
-            using (stream)
-            {
-                try
-                {
-                    return (SaveFile)formatter.Deserialize(stream);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message);
-                    Console.ReadKey();
-                }
-            }
-
-            return null;
-        }
+        
 
         #endregion Public Methods
     }

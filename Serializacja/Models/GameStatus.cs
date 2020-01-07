@@ -16,6 +16,10 @@
         /// <summary>
         /// User gave up.
         /// </summary>
-        Lost
+        Lost,
+        /// <summary>
+        /// Game is currently not being played but can be loaded.
+        /// </summary>
+        Halted
     };
 }

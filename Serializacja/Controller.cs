@@ -86,7 +86,7 @@ namespace Serializacja
             {
                 view.DisplayInformationAboutPreviousGame();
 
-                SaveFile save = game.LoadGame();
+                SaveFile save = LoadGame();
 
                 if (save != null)
                 {
@@ -228,6 +228,29 @@ namespace Serializacja
 
             //UWAGA: ponizej może zostać zgłoszony wyjątek
             return int.Parse(value);
+        }
+
+        /// <summary>
+        /// Loads the file.
+        /// </summary>
+        public SaveFile LoadGame()
+        {
+            IFormatter formatter = new BinaryFormatter();
+            Stream stream = new FileStream("SaveFile.bin", FileMode.Open, FileAccess.Read, FileShare.Read);
+            using (stream)
+            {
+                try
+                {
+                    return (SaveFile)formatter.Deserialize(stream);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                    Console.ReadKey();
+                }
+            }
+
+            return null;
         }
 
         #endregion Public Methods
