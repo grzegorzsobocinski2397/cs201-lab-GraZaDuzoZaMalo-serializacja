@@ -91,12 +91,12 @@ namespace Serializacja
                 if (save != null)
                 {
                     view.DisplayLoadGameInformation(save.Rounds.Count, save.StartDate, save.TotalGameDuration);
+                    RemoveSaveFile();
 
                     while (view.AskUserForInput(ConsoleMessages.LoadGame))
                     {
                         game = new Game(save);
                         StartGame(game);
-                        return;
                     }
                 }
             }
@@ -199,6 +199,22 @@ namespace Serializacja
         public void EndGame()
         {
             game.StopGame();
+        }
+
+        /// <summary>
+        /// Removes the save file.
+        /// </summary>
+        public void RemoveSaveFile()
+        {
+            try
+            {
+                File.Delete($"{Environment.CurrentDirectory}\\SaveFile.bin");
+            }
+            catch (Exception ex)
+            {
+                view.AskUserForInput($"Something went wrong while deleting a save file. {ex.Message} ");
+            }
+           
         }
 
         public int LoadGameOrEnd(string value, int defaultValue)
