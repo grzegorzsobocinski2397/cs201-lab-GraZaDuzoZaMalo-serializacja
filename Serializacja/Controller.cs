@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
+using System.Xml;
 
 namespace Serializacja
 {
@@ -82,7 +82,7 @@ namespace Serializacja
         {
             view.DisplayGameDescription();
 
-            if (File.Exists($"{Environment.CurrentDirectory}\\SaveFile.bin"))
+            if (File.Exists($"{Environment.CurrentDirectory}\\SaveFile.xml"))
             {
                 view.DisplayInformationAboutPreviousGame();
 
@@ -186,11 +186,15 @@ namespace Serializacja
         }
 
         /// <summary>
-        /// Saves current game information.
+        /// Saves current game information. Remove save file if the saving process was incorrect.
         /// </summary>
         public void SaveGame()
         {
-            game.SaveGame();
+            if (!game.SaveGame())
+            {
+                RemoveSaveFile();
+            }
+            CloseApplication();
         }
 
         /// <summary>
@@ -208,47 +212,42 @@ namespace Serializacja
         {
             try
             {
-                File.Delete($"{Environment.CurrentDirectory}\\SaveFile.bin");
+                File.Delete($"{Environment.CurrentDirectory}\\SaveFile.xml");
             }
             catch (Exception ex)
             {
                 view.AskUserForInput($"Something went wrong while deleting a save file. {ex.Message} ");
             }
-           
         }
-
-        public int LoadGameOrEnd(string value, int defaultValue)
-        {
-            if (string.IsNullOrEmpty(value))
-                return defaultValue;
-
-            value = value.TrimStart().ToUpper();
-            if (value.Length > 0 && value[0].Equals(CLOSE_APPLICATION_CHAR))
-                throw new GameEndException();
-
-            //UWAGA: ponizej może zostać zgłoszony wyjątek
-            return int.Parse(value);
-        }
-
+        
         /// <summary>
         /// Loads the file.
         /// </summary>
         public SaveFile LoadGame()
         {
-            IFormatter formatter = new BinaryFormatter();
-            Stream stream = new FileStream("SaveFile.bin", FileMode.Open, FileAccess.Read, FileShare.Read);
-            using (stream)
+            Stream stream = new FileStream("SaveFile.xml", FileMode.Open, FileAccess.Read, FileShare.Read);
+            XmlDictionaryReader reader = XmlDictionaryReader.CreateTextReader(stream, new XmlDictionaryReaderQuotas());
+            DataContractSerializer serializer = new DataContractSerializer(typeof(SaveFile));
+
+
+            try
             {
-                try
+                using (stream)
                 {
-                    return (SaveFile)formatter.Deserialize(stream);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message);
-                    Console.ReadKey();
+                    using (reader)
+                    {
+                        SaveFile saveFile = (SaveFile)serializer.ReadObject(reader, true);
+                        return saveFile;
+                    }
                 }
             }
+            catch (Exception ex)
+            {
+                view.AskUserForInput($"There was an error during game load. A new game will start instead. Please click anything. Error: {ex.Message}.");
+                RemoveSaveFile();
+                game = new Game();
+            }
+
 
             return null;
         }

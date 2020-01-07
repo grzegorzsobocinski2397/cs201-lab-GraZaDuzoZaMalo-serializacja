@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 
 namespace Serializacja.Models
 {
     /// <summary>
     /// Contains all the information about saved game.
     /// </summary>
-    [Serializable]
+    [DataContract(Name = "SaveFile")]
     public class SaveFile
     {
         #region Public Properties
@@ -14,37 +15,44 @@ namespace Serializacja.Models
         /// <summary>
         /// List of rounds played by the user.
         /// </summary>
-        public List<Round> Rounds { get; }
+        [DataMember()]
+        public List<Round> Rounds { get; set; }
 
         /// <summary>
         /// The minimum value user can try to guess and the computer can generate.
         /// </summary>
-        public int MinimumValue { get; }
+        [DataMember()]
+        public int MinimumValue { get; set; }
 
         /// <summary>
         /// The maximum value user can try to guess and the computer can generate.
         /// </summary>
-        public int MaximumValue { get; }
+        [DataMember()]
+        public int MaximumValue { get; set; }
 
         /// <summary>
         /// Currently generated secret number. User has to guess it.
         /// </summary>
-        public int Secret { get; }
+        [DataMember()]
+        public int Secret { get; set; }
 
         /// <summary>
         /// Start date of the initialization of this game.
         /// </summary>
-        public DateTime StartDate { get; }
-        
+        [DataMember()]
+        public DateTime StartDate { get; set; }
+
         /// <summary>
         /// Returns total current game duration.
         /// </summary>
-        public TimeSpan TotalGameDuration { get; }
+        [DataMember()]
+        public TimeSpan TotalGameDuration { get; set; }
 
         /// <summary>
         /// Current game status.
         /// </summary>
-        public GameStatus GameStatus { get; }
+        [DataMember()]
+        public GameStatus GameStatus { get; set; }
 
         #endregion Public Properties
 

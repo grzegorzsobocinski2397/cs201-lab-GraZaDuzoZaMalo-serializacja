@@ -1,11 +1,12 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 namespace Serializacja.Models
 {
     /// <summary>
     /// One round that user have played.
     /// </summary>
-    [Serializable]
+    [DataContract(Name = "Round")]
     public class Round
     {
         #region Public Properties
@@ -13,22 +14,26 @@ namespace Serializacja.Models
         /// <summary>
         /// Number that user wrote.
         /// </summary>
-        public int? Number { get; }
+        [DataMember()]
+        public int? Number { get; set; }
 
         /// <summary>
         /// Computer's answer to the <see cref="Number"/>.
         /// </summary>
-        public Answer? Answer { get; }
+        [DataMember()]
+        public Answer? Answer { get; set; }
 
         /// <summary>
         /// Contains information about this game status.
         /// </summary>
-        public GameStatus Status { get; }
+        [DataMember()]
+        public GameStatus Status { get; set; }
 
         /// <summary>
         /// Saves the date user tried to make that guess.
         /// </summary>
-        public DateTime Time { get; }
+        [DataMember()]
+        public DateTime Time { get; set; }
 
         #endregion Public Properties
 

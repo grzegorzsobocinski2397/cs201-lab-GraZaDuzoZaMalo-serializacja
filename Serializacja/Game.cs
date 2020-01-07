@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
 
 namespace Serializacja
 {
@@ -61,14 +60,12 @@ namespace Serializacja
         /// <summary>
         /// Start date after loading the game file.
         /// </summary>
-        public DateTime CheckPointStartDate { get;  private set; }
+        public DateTime CheckPointStartDate { get; private set; }
 
         /// <summary>
         /// End date of the game.
         /// </summary>
         public DateTime? EndDate { get; private set; }
-
-
 
         /// <summary>
         /// Returns current game duration from constructor initialization or game load till this time.
@@ -185,27 +182,37 @@ namespace Serializacja
         /// <summary>
         /// Saves current game information.
         /// </summary>
-        public void SaveGame()
+        /// <returns>Information if the save was correct.</returns>
+        public bool SaveGame()
         {
             TotalGameDuration = TotalGameDuration.Add(CurrentGameDuration);
             SaveFile save = new SaveFile(this, rounds, secretNumber);
-            IFormatter formatter = new BinaryFormatter();
-            Stream stream = new FileStream("SaveFile.bin", FileMode.Create, FileAccess.Write, FileShare.None);
+            DataContractSerializer serializer = new DataContractSerializer(typeof(SaveFile));
 
-            using (stream)
+            try
             {
-                try
+                Stream stream = new FileStream("SaveFile.xml", FileMode.Create, FileAccess.Write, FileShare.None); using (stream)
                 {
-                    formatter.Serialize(stream, save);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message);
-                    Console.ReadKey();
+                    try
+                    {
+                        serializer.WriteObject(stream, save);
+                        return true;
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"There was an error while saving your game! Please click anything and the application will close. {ex.Message}");
+                        Console.ReadKey();
+                    }
                 }
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Couldn't create new file, because other save file already exists. Error: ${ex.Message}");
+                Console.ReadKey();
+            }
+
+            return false;
         }
-        
 
         #endregion Public Methods
     }
