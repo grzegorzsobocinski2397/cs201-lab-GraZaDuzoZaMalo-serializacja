@@ -12,6 +12,11 @@ namespace Serializacja
         #region Private Fields
 
         /// <summary>
+        /// Max amount of rounds in which user can guess the answer.
+        /// </summary>
+        private const int GAME_LIMIT = 10;
+
+        /// <summary>
         /// Currently generated secret number. User has to guess it.
         /// </summary>
         readonly private int secretNumber;
@@ -29,6 +34,11 @@ namespace Serializacja
         #endregion Private Fields
 
         #region Public Properties
+
+        /// <summary>
+        /// Currently generated secret number. User has to guess it.
+        /// </summary>
+        public int SecretNumber => secretNumber;
 
         /// <summary>
         /// The maximum value user can try to guess and the computer can generate.
@@ -156,6 +166,11 @@ namespace Serializacja
             if (Status == GameStatus.OnGoing)
             {
                 rounds.Add(new Round(guess, answer, GameStatus.OnGoing));
+            }
+
+            if (Rounds.Count >= GAME_LIMIT)
+            {
+                StopGame();
             }
 
             return answer;

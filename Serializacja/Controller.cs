@@ -103,7 +103,7 @@ namespace Serializacja
                 {
                     guess = view.LoadInput();
                 }
-                catch (GameEndException)
+                catch (Exception)
                 {
                     game.StopGame();
                 }
@@ -136,8 +136,10 @@ namespace Serializacja
             }
             while (game.Status == GameStatus.OnGoing);
 
-            //if StatusGry == Przerwana wypisz poprawną odpowiedź
-            //if StatusGry == Zakończona wypisz statystyki gry
+            if (game.Status == GameStatus.Lost)
+            {
+                view.AskUserForInput($"The correct answer was {game.SecretNumber}. Please click anything to quit.");
+            }
         }
 
         /// <summary>
@@ -169,8 +171,13 @@ namespace Serializacja
         /// </summary>
         public void SaveGame()
         {
-            SaveFile save = game.SaveGame();
+            if (game.Status != GameStatus.OnGoing)
+            {
+                return;
+            }
 
+            SaveFile save = game.SaveGame();
+            
             try
             {
                 using (MemoryStream memoryStream = new MemoryStream())

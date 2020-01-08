@@ -76,7 +76,6 @@
     <Compile Include="Encryption\EncryptionValues.cs" />
     <Compile Include="Game.cs" />
     <Compile Include="Models\Answer.cs" />
-    <Compile Include="Models\GameException.cs" />
     <Compile Include="Models\GameStatus.cs" />
     <Compile Include="Models\Round.cs" />
     <Compile Include="Models\SaveFile.cs" />
@@ -91,7 +90,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="Serializacja_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\ConsoleMessages.resx">
