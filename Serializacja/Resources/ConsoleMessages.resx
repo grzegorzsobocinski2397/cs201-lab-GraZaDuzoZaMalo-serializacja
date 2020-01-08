@@ -117,16 +117,31 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="ArgumentException" xml:space="preserve">
+    <value>There was a problem with decryption of the save file. Please contact your administrator for more information. Error:</value>
+  </data>
+  <data name="ArgumentNullException" xml:space="preserve">
+    <value>Save file was probably empty. Please contact your administrator for more information. Error:</value>
+  </data>
   <data name="ComputerStart" xml:space="preserve">
     <value>Computer came up with a number. Try to guess it!</value>
   </data>
   <data name="CorrectGuess" xml:space="preserve">
     <value>You've answered correctly!</value>
   </data>
+  <data name="DeleteException" xml:space="preserve">
+    <value>Something went wrong while deleting a save file.</value>
+  </data>
+  <data name="FileNotFoundException" xml:space="preserve">
+    <value>We couldn't locate the save file. Please check if it's really there. Error:</value>
+  </data>
   <data name="GameRules" xml:space="preserve">
     <value>This is a game called "Too much, too little".
 You have to guess a number that computer came up with.
 The computer answers your guesses with "too much", "too little" and "correct".</value>
+  </data>
+  <data name="LoadException" xml:space="preserve">
+    <value>There was an error during game load. A new game will start instead. Please click anything. Error:</value>
   </data>
   <data name="LoadGame" xml:space="preserve">
     <value>Do you want to load it (y/n)?</value>
@@ -136,6 +151,9 @@ The computer answers your guesses with "too much", "too little" and "correct".</
   </data>
   <data name="NumberTooBig" xml:space="preserve">
     <value>Your answer was too large! Please try again.</value>
+  </data>
+  <data name="SaveExcepton" xml:space="preserve">
+    <value>There was an error while saving your game! Please click anything and the application will close.</value>
   </data>
   <data name="SaveFileInformation" xml:space="preserve">
     <value>We've noticed that you've previously saved game. </value>
@@ -151,6 +169,9 @@ The computer answers your guesses with "too much", "too little" and "correct".</
   </data>
   <data name="TooMuch" xml:space="preserve">
     <value>Too much!</value>
+  </data>
+  <data name="UnauthorizedAccessException" xml:space="preserve">
+    <value>We couldn't access the save file. Please check this programs access rights. Error:</value>
   </data>
   <data name="UnknownException" xml:space="preserve">
     <value>Unknown error. Please try again.</value>

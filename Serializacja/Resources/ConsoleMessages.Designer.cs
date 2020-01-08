@@ -61,6 +61,24 @@ namespace Serializacja.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to There was a problem with decryption of the save file. Please contact your administrator for more information. Error:.
+        /// </summary>
+        internal static string ArgumentException {
+            get {
+                return ResourceManager.GetString("ArgumentException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Save file was probably empty. Please contact your administrator for more information. Error:.
+        /// </summary>
+        internal static string ArgumentNullException {
+            get {
+                return ResourceManager.GetString("ArgumentNullException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Computer came up with a number. Try to guess it!.
         /// </summary>
         internal static string ComputerStart {
@@ -79,6 +97,24 @@ namespace Serializacja.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Something went wrong while deleting a save file..
+        /// </summary>
+        internal static string DeleteException {
+            get {
+                return ResourceManager.GetString("DeleteException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to We couldn&apos;t locate the save file. Please check if it&apos;s really there. Error:.
+        /// </summary>
+        internal static string FileNotFoundException {
+            get {
+                return ResourceManager.GetString("FileNotFoundException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to This is a game called &quot;Too much, too little&quot;.
         ///You have to guess a number that computer came up with.
         ///The computer answers your guesses with &quot;too much&quot;, &quot;too little&quot; and &quot;correct&quot;..
@@ -86,6 +122,15 @@ namespace Serializacja.Resources {
         internal static string GameRules {
             get {
                 return ResourceManager.GetString("GameRules", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to There was an error during game load. A new game will start instead. Please click anything. Error:.
+        /// </summary>
+        internal static string LoadException {
+            get {
+                return ResourceManager.GetString("LoadException", resourceCulture);
             }
         }
         
@@ -113,6 +158,15 @@ namespace Serializacja.Resources {
         internal static string NumberTooBig {
             get {
                 return ResourceManager.GetString("NumberTooBig", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to There was an error while saving your game! Please click anything and the application will close..
+        /// </summary>
+        internal static string SaveExcepton {
+            get {
+                return ResourceManager.GetString("SaveExcepton", resourceCulture);
             }
         }
         
@@ -158,6 +212,15 @@ namespace Serializacja.Resources {
         internal static string TooMuch {
             get {
                 return ResourceManager.GetString("TooMuch", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to We couldn&apos;t access the save file. Please check this programs access rights. Error:.
+        /// </summary>
+        internal static string UnauthorizedAccessException {
+            get {
+                return ResourceManager.GetString("UnauthorizedAccessException", resourceCulture);
             }
         }
         

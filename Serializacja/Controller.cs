@@ -208,21 +208,21 @@ namespace Serializacja
                         }
                         catch (FileNotFoundException exception)
                         {
-                            view.AskUserForInput($"We couldn't locate the save file. Please check if it's really there. Error: {exception.Message}");
+                            view.AskUserForInput($"{ConsoleMessages.FileNotFoundException} {exception.Message}");
                         }
                         catch (ArgumentNullException exception)
                         {
-                            view.AskUserForInput($"Save file was probably empty. Please contact your administrator for more information. Error: {exception.Message}");
+                            view.AskUserForInput($"{ConsoleMessages.ArgumentNullException} {exception.Message}");
                         }
                         catch (ArgumentException exception)
                         {
-                            view.AskUserForInput($"There was a problem with decryption of the save file. Please contact your administrator for more information. Error: {exception.Message}");
+                            view.AskUserForInput($"{ConsoleMessages.ArgumentException} {exception.Message}");
                         }
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"There was an error while saving your game! Please click anything and the application will close. {ex.Message}");
+                Console.WriteLine($"{ConsoleMessages.SaveExcepton} {ex.Message}");
                 RemoveSaveFile();
                 Console.ReadKey();
             }
@@ -340,23 +340,23 @@ namespace Serializacja
             }
             catch (FileNotFoundException exception)
             {
-                view.AskUserForInput($"We couldn't locate the save file. Please check if it's really there. Error: {exception.Message}");
+                view.AskUserForInput($"{ConsoleMessages.FileNotFoundException} {exception.Message}");
             }
             catch (UnauthorizedAccessException exception)
             {
-                view.AskUserForInput($"We couldn't access the save file. Please check this programs access rights. Error: {exception.Message}");
+                view.AskUserForInput($"{ConsoleMessages.UnauthorizedAccessException} {exception.Message}");
             }
             catch (ArgumentNullException exception)
             {
-                view.AskUserForInput($"Save file was probably empty. Please contact your administrator for more information. Error: {exception.Message}");
+                view.AskUserForInput($"{ConsoleMessages.ArgumentNullException} {exception.Message}");
             }
             catch (ArgumentException exception)
             {
-                view.AskUserForInput($"There was a problem with decryption of the save file. Please contact your administrator for more information. Error: {exception.Message}");
+                view.AskUserForInput($"{ConsoleMessages.ArgumentException} {exception.Message}");
             }
             catch (Exception ex)
             {
-                view.AskUserForInput($"There was an error during game load. A new game will start instead. Please click anything. Error: {ex.Message}.");
+                view.AskUserForInput($"{ConsoleMessages.LoadException} {ex.Message}.");
                 RemoveSaveFile();
                 game = new Game();
             }
@@ -375,11 +375,11 @@ namespace Serializacja
             }
             catch (UnauthorizedAccessException exception)
             {
-                view.AskUserForInput($"We couldn't access the save file. Please check this programs access rights. Error: {exception.Message}");
+                view.AskUserForInput($"{ConsoleMessages.UnauthorizedAccessException} {exception.Message}");
             }
             catch (Exception ex)
             {
-                view.AskUserForInput($"Something went wrong while deleting a save file. {ex.Message} ");
+                view.AskUserForInput($"{ConsoleMessages.DeleteException} {ex.Message} ");
             }
         }
 

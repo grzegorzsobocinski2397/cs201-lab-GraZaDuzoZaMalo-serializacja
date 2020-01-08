@@ -63,7 +63,7 @@ namespace Serializacja
             bool isInputCorrect = false;
             while (!isInputCorrect)
             {
-                Write($"Try making a guess (or type {Controller.CLOSE_APPLICATION_CHAR} to stop the game): ");
+                Write($"Try making a guess (or type {CLOSE_APPLICATION_CHAR} to stop the game): ");
                 try
                 {
                     string value = ReadLine().TrimStart().ToUpper();
