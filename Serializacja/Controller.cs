@@ -3,10 +3,12 @@ using Serializacja.Models;
 using Serializacja.Resources;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Security.Cryptography;
+using System.Timers;
 
 namespace Serializacja
 {
@@ -64,6 +66,16 @@ namespace Serializacja
         /// </summary>
         private const string FILE_NAME = "SaveFile.xml";
 
+        /// <summary>
+        /// Save the game after this time passes.
+        /// </summary>
+        private const int SAVE_INTERVAL = 15_000;
+
+        /// <summary>
+        /// Instance of BackgroundWorker that will save game every <see cref="SAVE_INTERVAL"/> passes.
+        /// </summary>
+        private BackgroundWorker worker;
+
         #endregion Private Fields
 
         #region Constructors
@@ -82,36 +94,12 @@ namespace Serializacja
         #region Public Methods
 
         /// <summary>
-        /// Display the rules to the player and start game.
+        /// Create auto save process and start a new game.
         /// </summary>
         public void StartApplication()
         {
-            view.DisplayGameDescription();
-
-            if (File.Exists($"{Environment.CurrentDirectory}\\{FILE_NAME}"))
-            {
-                view.DisplayInformationAboutPreviousGame();
-
-                SaveFile save = LoadGame();
-
-                if (save != null)
-                {
-                    view.DisplayLoadGameInformation(save.Rounds.Count, save.StartDate, save.TotalGameDuration);
-                    RemoveSaveFile();
-
-                    while (view.AskUserForInput(ConsoleMessages.LoadGame))
-                    {
-                        game = new Game(save);
-                        StartGame(game);
-                    }
-                }
-            }
-
-            while (view.AskUserForInput(ConsoleMessages.StartGame))
-            {
-                game = new Game(MinimumNumber, MaximumNumber);
-                StartGame(game);
-            }
+            StartAutoSaveProcess();
+            RunGameProcess();
         }
 
         /// <summary>
@@ -238,12 +226,7 @@ namespace Serializacja
                 RemoveSaveFile();
                 Console.ReadKey();
             }
-            finally
-            {
-                CloseApplication();
-            }
         }
-
 
         /// <summary>
         /// Ends the game.
@@ -253,25 +236,78 @@ namespace Serializacja
             game.StopGame();
         }
 
+        #endregion Public Methods
+
+        #region Private Methods
+
         /// <summary>
-        /// Removes the save file.
+        /// Run a BackgroundWorker that will save game every <see cref="SAVE_INTERVAL"/>.
         /// </summary>
-        public void RemoveSaveFile()
+        private void StartAutoSaveProcess()
         {
-            try
+            worker = new BackgroundWorker();
+            worker.DoWork += BackgroundSaveGame;
+            Timer timer = new Timer(SAVE_INTERVAL);
+            timer.Elapsed += CheckWorkerStatus;
+            timer.Start();
+        }
+
+        /// <summary>
+        /// Display the rules to the player and start game.
+        /// </summary>
+        private void RunGameProcess()
+        {
+            view.DisplayGameDescription();
+
+            if (File.Exists($"{Environment.CurrentDirectory}\\{FILE_NAME}"))
             {
-                File.Delete($"{Environment.CurrentDirectory}\\{FILE_NAME}");
+                view.DisplayInformationAboutPreviousGame();
+
+                SaveFile save = LoadGame();
+
+                if (save != null)
+                {
+                    view.DisplayLoadGameInformation(save.Rounds.Count, save.StartDate, save.TotalGameDuration);
+                    RemoveSaveFile();
+
+                    while (view.AskUserForInput(ConsoleMessages.LoadGame))
+                    {
+                        game = new Game(save);
+                        StartGame(game);
+                    }
+                }
             }
-            catch (Exception ex)
+
+            while (view.AskUserForInput(ConsoleMessages.StartGame))
             {
-                view.AskUserForInput($"Something went wrong while deleting a save file. {ex.Message} ");
+                game = new Game(MinimumNumber, MaximumNumber);
+                StartGame(game);
             }
+        }
+
+        /// <summary>
+        /// Save game if the <see cref="worker"/> isn't busy.
+        /// </summary>
+        private void CheckWorkerStatus(object sender, ElapsedEventArgs e)
+        {
+            if (!worker.IsBusy)
+            {
+                worker.RunWorkerAsync();
+            }
+        }
+
+        /// <summary>
+        /// Save game in background.
+        /// </summary>
+        private void BackgroundSaveGame(object sender, DoWorkEventArgs e)
+        {
+            SaveGame();
         }
 
         /// <summary>
         /// Decrypt the save file and load game.
         /// </summary>
-        public SaveFile LoadGame()
+        private SaveFile LoadGame()
         {
             try
             {
@@ -300,7 +336,6 @@ namespace Serializacja
                         aesCryptoService.Dispose();
                         return save;
                     }
-
                 }
             }
             catch (Exception ex)
@@ -313,6 +348,21 @@ namespace Serializacja
             return null;
         }
 
-        #endregion Public Methods
+        /// <summary>
+        /// Removes the save file.
+        /// </summary>
+        private void RemoveSaveFile()
+        {
+            try
+            {
+                File.Delete($"{Environment.CurrentDirectory}\\{FILE_NAME}");
+            }
+            catch (Exception ex)
+            {
+                view.AskUserForInput($"Something went wrong while deleting a save file. {ex.Message} ");
+            }
+        }
+
+        #endregion Private Methods
     }
 }
