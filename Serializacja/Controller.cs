@@ -17,15 +17,6 @@ namespace Serializacja
     /// </summary>
     public class Controller
     {
-        #region Public Constant Values
-
-        /// <summary>
-        /// Character that when typed will close the application.
-        /// </summary>
-        public const char CLOSE_APPLICATION_CHAR = 'X';
-
-        #endregion Public Constant Values
-
         #region Public Properties
 
         /// <summary>
@@ -41,11 +32,7 @@ namespace Serializacja
         /// <summary>
         /// List of rounds played by the user.
         /// </summary>
-        public IReadOnlyList<Round> Rounds
-        {
-            get
-            { return game.Rounds; }
-        }
+        public IReadOnlyList<Round> Rounds => game.Rounds;
 
         #endregion Public Properties
 
@@ -105,7 +92,7 @@ namespace Serializacja
         /// <summary>
         /// Create new instance of the game resulting with new secret number.
         /// </summary>
-        public void StartGame(Game game)
+        public void StartGame()
         {
             view.ClearConsole();
 
@@ -158,9 +145,7 @@ namespace Serializacja
         /// </summary>
         /// <param name="min">The minimum value user can try to guess and the computer can generate.</param>
         /// <param name="max">The maximum value user can try to guess and the computer can generate.</param>
-        public void SetRangeOfValues(ref int min, ref int max)
-        {
-        }
+        public void SetRangeOfValues(ref int min, ref int max) { }
 
         /// <summary>
         /// Return the amount of rounds user have played and tried to guess the number.
@@ -197,27 +182,42 @@ namespace Serializacja
 
                     using (StreamReader memoryStreamReader = new StreamReader(memoryStream))
 
-                    // Save to .xml and encrypt with AES.
-                    using (Stream fileStream = new FileStream(FILE_NAME, FileMode.Create, FileAccess.Write, FileShare.None))
-                    {
-                        AesCryptoServiceProvider aesCryptoService = new AesCryptoServiceProvider();
-
-                        using (ICryptoTransform cryptoTransform = aesCryptoService.CreateEncryptor(
-                            EncryptionValues.EncryptionKey,
-                            EncryptionValues.EncryptionInitializationVector))
-
-                        using (CryptoStream cryptoStream = new CryptoStream(fileStream, cryptoTransform, CryptoStreamMode.Write))
-
-                        using (StreamWriter cryptoStreamWriter = new StreamWriter(cryptoStream))
+                        // Save to .xml and encrypt with AES.
+                        try
                         {
-                            string dataToEncrypt = memoryStreamReader.ReadToEnd();
-                            cryptoStreamWriter.Write(dataToEncrypt);
+                            using (Stream fileStream = new FileStream(FILE_NAME, FileMode.Create, FileAccess.Write, FileShare.None))
+                            {
+                                AesCryptoServiceProvider aesCryptoService = new AesCryptoServiceProvider();
 
-                            cryptoStreamWriter.Flush();
+                                using (ICryptoTransform cryptoTransform = aesCryptoService.CreateEncryptor(
+                                    EncryptionValues.EncryptionKey,
+                                    EncryptionValues.EncryptionInitializationVector))
+
+                                using (CryptoStream cryptoStream = new CryptoStream(fileStream, cryptoTransform, CryptoStreamMode.Write))
+
+                                using (StreamWriter cryptoStreamWriter = new StreamWriter(cryptoStream))
+                                {
+                                    string dataToEncrypt = memoryStreamReader.ReadToEnd();
+                                    cryptoStreamWriter.Write(dataToEncrypt);
+
+                                    cryptoStreamWriter.Flush();
+                                }
+
+                                aesCryptoService.Dispose();
+                            }
                         }
-
-                        aesCryptoService.Dispose();
-                    }
+                        catch (FileNotFoundException exception)
+                        {
+                            view.AskUserForInput($"We couldn't locate the save file. Please check if it's really there. Error: {exception.Message}");
+                        }
+                        catch (ArgumentNullException exception)
+                        {
+                            view.AskUserForInput($"Save file was probably empty. Please contact your administrator for more information. Error: {exception.Message}");
+                        }
+                        catch (ArgumentException exception)
+                        {
+                            view.AskUserForInput($"There was a problem with decryption of the save file. Please contact your administrator for more information. Error: {exception.Message}");
+                        }
                 }
             }
             catch (Exception ex)
@@ -273,7 +273,7 @@ namespace Serializacja
                     while (view.AskUserForInput(ConsoleMessages.LoadGame))
                     {
                         game = new Game(save);
-                        StartGame(game);
+                        StartGame();
                     }
                 }
             }
@@ -281,7 +281,7 @@ namespace Serializacja
             while (view.AskUserForInput(ConsoleMessages.StartGame))
             {
                 game = new Game(MinimumNumber, MaximumNumber);
-                StartGame(game);
+                StartGame();
             }
         }
 
@@ -338,6 +338,22 @@ namespace Serializacja
                     }
                 }
             }
+            catch (FileNotFoundException exception)
+            {
+                view.AskUserForInput($"We couldn't locate the save file. Please check if it's really there. Error: {exception.Message}");
+            }
+            catch (UnauthorizedAccessException exception)
+            {
+                view.AskUserForInput($"We couldn't access the save file. Please check this programs access rights. Error: {exception.Message}");
+            }
+            catch (ArgumentNullException exception)
+            {
+                view.AskUserForInput($"Save file was probably empty. Please contact your administrator for more information. Error: {exception.Message}");
+            }
+            catch (ArgumentException exception)
+            {
+                view.AskUserForInput($"There was a problem with decryption of the save file. Please contact your administrator for more information. Error: {exception.Message}");
+            }
             catch (Exception ex)
             {
                 view.AskUserForInput($"There was an error during game load. A new game will start instead. Please click anything. Error: {ex.Message}.");
@@ -356,6 +372,10 @@ namespace Serializacja
             try
             {
                 File.Delete($"{Environment.CurrentDirectory}\\{FILE_NAME}");
+            }
+            catch (UnauthorizedAccessException exception)
+            {
+                view.AskUserForInput($"We couldn't access the save file. Please check this programs access rights. Error: {exception.Message}");
             }
             catch (Exception ex)
             {

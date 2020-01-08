@@ -1,8 +1,6 @@
 ﻿using Serializacja.Models;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Runtime.Serialization;
 
 namespace Serializacja
 {
@@ -188,7 +186,6 @@ namespace Serializacja
             TotalGameDuration = TotalGameDuration.Add(CurrentGameDuration);
             return new SaveFile(this, rounds, secretNumber);
         }
-
 
         #endregion Public Methods
     }
