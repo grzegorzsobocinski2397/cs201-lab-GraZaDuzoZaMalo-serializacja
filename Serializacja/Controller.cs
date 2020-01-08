@@ -123,24 +123,24 @@ namespace Serializacja
 
             do
             {
-                int propozycja = 0;
+                int guess = 0;
                 try
                 {
-                    propozycja = view.LoadInput();
+                    guess = view.LoadInput();
                 }
                 catch (GameEndException)
                 {
                     game.StopGame();
                 }
 
-                Console.WriteLine(propozycja);
+                Console.WriteLine(guess);
 
                 if (game.Status == GameStatus.Lost)
                 {
                     break;
                 }
 
-                switch (game.Score(propozycja))
+                switch (game.Score(guess))
                 {
                     case Answer.TooBig:
                         view.DisplayTooMuchMessage();
