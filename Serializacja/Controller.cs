@@ -1,11 +1,12 @@
-﻿using Serializacja.Models;
+﻿using Serializacja.Encryption;
+using Serializacja.Models;
 using Serializacja.Resources;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
-using System.Xml;
+using System.Security.Cryptography;
 
 namespace Serializacja
 {
@@ -58,6 +59,11 @@ namespace Serializacja
         /// </summary>
         private View view;
 
+        /// <summary>
+        /// Name of the file that contains save.
+        /// </summary>
+        private const string FILE_NAME = "SaveFile.xml";
+
         #endregion Private Fields
 
         #region Constructors
@@ -82,7 +88,7 @@ namespace Serializacja
         {
             view.DisplayGameDescription();
 
-            if (File.Exists($"{Environment.CurrentDirectory}\\SaveFile.xml"))
+            if (File.Exists($"{Environment.CurrentDirectory}\\{FILE_NAME}"))
             {
                 view.DisplayInformationAboutPreviousGame();
 
@@ -190,12 +196,54 @@ namespace Serializacja
         /// </summary>
         public void SaveGame()
         {
-            if (!game.SaveGame())
+            SaveFile save = game.SaveGame();
+
+            try
             {
-                RemoveSaveFile();
+                using (MemoryStream memoryStream = new MemoryStream())
+                {
+                    // Serialize the SaveFile.
+                    DataContractSerializer serializer = new DataContractSerializer(typeof(SaveFile));
+                    serializer.WriteObject(memoryStream, save);
+                    memoryStream.Position = 0L;
+
+                    using (StreamReader memoryStreamReader = new StreamReader(memoryStream))
+
+                    // Save to .xml and encrypt with AES.
+                    using (Stream fileStream = new FileStream(FILE_NAME, FileMode.Create, FileAccess.Write, FileShare.None))
+                    {
+                        AesCryptoServiceProvider aesCryptoService = new AesCryptoServiceProvider();
+
+                        using (ICryptoTransform cryptoTransform = aesCryptoService.CreateEncryptor(
+                            EncryptionValues.EncryptionKey,
+                            EncryptionValues.EncryptionInitializationVector))
+
+                        using (CryptoStream cryptoStream = new CryptoStream(fileStream, cryptoTransform, CryptoStreamMode.Write))
+
+                        using (StreamWriter cryptoStreamWriter = new StreamWriter(cryptoStream))
+                        {
+                            string dataToEncrypt = memoryStreamReader.ReadToEnd();
+                            cryptoStreamWriter.Write(dataToEncrypt);
+
+                            cryptoStreamWriter.Flush();
+                        }
+
+                        aesCryptoService.Dispose();
+                    }
+                }
             }
-            CloseApplication();
+            catch (Exception ex)
+            {
+                Console.WriteLine($"There was an error while saving your game! Please click anything and the application will close. {ex.Message}");
+                RemoveSaveFile();
+                Console.ReadKey();
+            }
+            finally
+            {
+                CloseApplication();
+            }
         }
+
 
         /// <summary>
         /// Ends the game.
@@ -212,33 +260,47 @@ namespace Serializacja
         {
             try
             {
-                File.Delete($"{Environment.CurrentDirectory}\\SaveFile.xml");
+                File.Delete($"{Environment.CurrentDirectory}\\{FILE_NAME}");
             }
             catch (Exception ex)
             {
                 view.AskUserForInput($"Something went wrong while deleting a save file. {ex.Message} ");
             }
         }
-        
+
         /// <summary>
-        /// Loads the file.
+        /// Decrypt the save file and load game.
         /// </summary>
         public SaveFile LoadGame()
         {
-            Stream stream = new FileStream("SaveFile.xml", FileMode.Open, FileAccess.Read, FileShare.Read);
-            XmlDictionaryReader reader = XmlDictionaryReader.CreateTextReader(stream, new XmlDictionaryReaderQuotas());
-            DataContractSerializer serializer = new DataContractSerializer(typeof(SaveFile));
-
-
             try
             {
-                using (stream)
+                // Read .xml file.
+                using (FileStream fileStream = File.Open(FILE_NAME, FileMode.Open))
                 {
-                    using (reader)
+                    // First decrypt.
+                    AesCryptoServiceProvider aesCryptoService = new AesCryptoServiceProvider();
+                    using (ICryptoTransform cryptoTransform =
+                           aesCryptoService.CreateDecryptor(EncryptionValues.EncryptionKey, EncryptionValues.EncryptionInitializationVector))
+                    using (CryptoStream cryptoStream = new CryptoStream(fileStream, cryptoTransform, CryptoStreamMode.Read))
+                    using (StreamReader cryptoStreamReader = new StreamReader(cryptoStream))
+                    using (MemoryStream memoryStream = new MemoryStream())
+
+                    // Create new SaveFile object based on the saved configuration.
+                    using (StreamWriter memoryStreamWriter = new StreamWriter(memoryStream))
                     {
-                        SaveFile saveFile = (SaveFile)serializer.ReadObject(reader, true);
-                        return saveFile;
+                        string decryptedSave = cryptoStreamReader.ReadToEnd();
+                        memoryStreamWriter.Write(decryptedSave);
+                        memoryStreamWriter.Flush();
+                        memoryStream.Position = 0L;
+
+                        DataContractSerializer serializer = new DataContractSerializer(typeof(SaveFile));
+
+                        SaveFile save = (SaveFile)serializer.ReadObject(memoryStream);
+                        aesCryptoService.Dispose();
+                        return save;
                     }
+
                 }
             }
             catch (Exception ex)
@@ -247,7 +309,6 @@ namespace Serializacja
                 RemoveSaveFile();
                 game = new Game();
             }
-
 
             return null;
         }

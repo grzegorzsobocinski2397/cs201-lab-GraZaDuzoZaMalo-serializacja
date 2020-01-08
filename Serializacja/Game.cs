@@ -183,36 +183,12 @@ namespace Serializacja
         /// Saves current game information.
         /// </summary>
         /// <returns>Information if the save was correct.</returns>
-        public bool SaveGame()
+        public SaveFile SaveGame()
         {
             TotalGameDuration = TotalGameDuration.Add(CurrentGameDuration);
-            SaveFile save = new SaveFile(this, rounds, secretNumber);
-            DataContractSerializer serializer = new DataContractSerializer(typeof(SaveFile));
-
-            try
-            {
-                Stream stream = new FileStream("SaveFile.xml", FileMode.Create, FileAccess.Write, FileShare.None); using (stream)
-                {
-                    try
-                    {
-                        serializer.WriteObject(stream, save);
-                        return true;
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"There was an error while saving your game! Please click anything and the application will close. {ex.Message}");
-                        Console.ReadKey();
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Couldn't create new file, because other save file already exists. Error: ${ex.Message}");
-                Console.ReadKey();
-            }
-
-            return false;
+            return new SaveFile(this, rounds, secretNumber);
         }
+
 
         #endregion Public Methods
     }
